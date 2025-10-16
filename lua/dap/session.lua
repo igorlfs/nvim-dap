@@ -1994,6 +1994,10 @@ function Session:_frame_set(frame)
   if not frame then
     return
   end
+  if not self.stopped_thread_id then
+    utils.notify('Cannot set frame if not stopped', vim.log.levels.ERROR)
+    return
+  end
   self.current_frame = frame
   coroutine.wrap(function()
     jump_to_frame(self, frame, false)
