@@ -59,6 +59,19 @@ function M.new(args)
   end)
 end
 
+---@param session dap.Session
+---@param session_id number?
+local function traverse_child_session(session, session_id)
+  if session.id == session_id then
+    return session
+  end
+  for _, children in pairs(session.children) do
+    local result = traverse_child_session(children, session_id)
+    if result then
+      return result
+    end
+  end
+end
 
 ---@param buf integer
 function M.source(buf)
@@ -67,7 +80,15 @@ function M.source(buf)
   session_id = tonumber(session_id)
   source_ref = tonumber(source_ref)
   local dap = require("dap")
-  local session = dap.sessions()[session_id]
+  ---@type dap.Session
+  local session
+  for _, s in pairs(dap.sessions()) do
+    local result = traverse_child_session(s, session_id)
+    if result then
+      session = result
+      break
+    end
+  end
   if not session then
     return
   end
