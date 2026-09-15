@@ -267,9 +267,11 @@ local function run_in_terminal(lsession, request)
   local jobid
   lsession.term_buf = terminal_buf
   vim.api.nvim_buf_call(terminal_buf, function()
-    ---@diagnostic disable-next-line: deprecated
-    local termopen = vim.fn.has("nvim-0.11") == 1 and vim.fn.jobstart or vim.fn.termopen
-    jobid = termopen(body.args, {
+    local args = body.args[1]
+    for i = 2, #body.args do
+      args = args .. " " .. body.args[i]
+    end
+    jobid = vim.fn.jobstart(args, {
       env = next(body.env or {}) and body.env or vim.empty_dict(),
       cwd = (body.cwd and body.cwd ~= '') and body.cwd or nil,
       height = terminal_win and api.nvim_win_get_height(terminal_win) or math.ceil(vim.o.lines / 2),
@@ -1958,6 +1960,7 @@ function Session:initialize(config)
     linesStartAt1 = true;
     supportsRunInTerminalRequest = true;
     supportsVariableType = true;
+    supportsArgsCanBeInterpretedByShell = true,
     supportsProgressReporting = true,
     supportsStartDebuggingRequest = true,
     locale = os.getenv('LANG') or 'en_US';
