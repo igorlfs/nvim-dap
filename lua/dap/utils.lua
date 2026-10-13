@@ -2,10 +2,11 @@ local M = {}
 
 
 ---@param err dap.ErrorResponse
+---@param ignore_show_user? boolean
 ---@return string?
-function M.fmt_error(err)
+function M.fmt_error(err, ignore_show_user)
   local body = err.body or {}
-  if body.error and body.error.showUser then
+  if body.error and (ignore_show_user or body.error.showUser) then
     local msg = body.error.format
     for key, val in pairs(body.error.variables or {}) do
       msg = msg:gsub('{' .. key .. '}', val)

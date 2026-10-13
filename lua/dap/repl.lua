@@ -205,7 +205,7 @@ end
 
 local function evaluate_handler(err, resp)
   if err then
-    M.append(tostring(err), nil, { newline = true })
+    M.append(utils.fmt_error(err, true) or "Undefined error", nil, { newline = true })
     return
   end
   local layer = ui.layer(repl.buf)
